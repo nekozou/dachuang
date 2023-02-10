@@ -8,3 +8,11 @@
 **本地分支切换**
 
 `git checkout -b huanghaiming`
+
+**删除本地分支**
+
+`git branch -d branch_name`
+
+**合并云端分支**
+
+直接在网站合并及同意即可
