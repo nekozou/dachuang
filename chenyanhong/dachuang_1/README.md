@@ -1,5 +1,5 @@
 终端：
-> pipenv shell
+> pipenv shell;
 > flask run
 
 登录账号密码暂时是：zyg/123
