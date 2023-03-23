@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+<!--Bootstrap-Flask 提供的表单渲染宏通过内置的 bootstrap/form.html 模板导入， -->
+{% from 'bootstrap/form.html' import render_form %}
+
+{% block content %}
+    <div class="left">
+
+{#      {% for data in datalist %}#}
+{#          <li>#}
+{#          温度{{ data.temporary }}#}
+{#          湿度{{ data.humidity }}#}
+{#          负离子数{{ data.ion_count }}#}
+{#          风向{{ data.wind_direction }}#}
+{#          风速{{ data.wind_speed }}#}
+{#          大气压{{ data.atmospheric_pressure }}#}
+{#          降雨量{{ data.rainfall }}#}
+{#          噪音{{ data.noise }}#}
+{#          紫外线强度{{ data.uv_index }}#}
+{#          氧气{{ data.oxygen_level }}#}
+{#          时间{{ data.timestamp }}</li>#}
+{##}
+{#      {% endfor %}#}
+
+
+
+        <div id="chart" style="width: 600px; height: 400px;"></div>
+
+        <script>
+            // 基于准备好的容器，初始化 ECharts 实例
+            var myChart = echarts.init(document.getElementById('chart'));
+
+
+
+            {#var time1 = {{ messages.time1 }}#}
+            {#console.log(messages);#}
+
+            console.log('hello');
+            console.log('');
+            console.log('hello1');
+
+            // 指定图表的配置项和数据
+            var option = {
+                title: {
+                    text: '折线图示例'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: [ '{{ messages[0].time1 }}', '{{ messages[0].temp }}', '周三', '周四', '周五', '周六', '周日']
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: [{
+                    data: [820, 932, 901, 934, 1290, 1330, 1320],
+                    type: 'line'
+                }]
+            };
+
+            // 使用刚指定的配置项和数据显示图表
+            myChart.setOption(option);
+        </script>
+
+{#        <h5>{{ messages|length }} messages#}
+{#            <small class="float-right">#}
+{#                <a href="#bottom" title="Go Bottom">&darr;</a>#}
+{#            </small>#}
+{#        </h5>#}
+{#        <div class="list-group">#}
+{#            {% for message in messages %}#}
+{#                <a class="list-group-item list-group-item-action flex-column">#}
+{#                    <div class="d-flex w-100 justify-content-between">#}
+{#                        <h5 class="mb-1 text-success">{{ message.rainfall }}#}
+{#                            <small class="text-muted"> #{{ loop.revindex }}</small>#}
+{#                        </h5>#}
+{#                        <h5 class="mb-1 text-success">{{ message.time1 }}#}
+{#                            <small class="text-muted"> #{{ loop.revindex }}</small>#}
+{#                        </h5>#}
+{#                        <small data-toggle="tooltip" data-placement="top"#}
+{#                               data-timestamp="{{ message.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}"#}
+{#                               data-delay="500">#}
+{#                            {{ moment(message.timestamp).fromNow(refresh=True) }}#}
+{#                        </small>#}
+{#                    </div>#}
+{#                    <p class="mb-1">{{ message.body }}</p>#}
+{#                </a>#}
+{#            {% endfor %}#}
+{#        </div>#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <div class="right">
+
+    </div>
+    <div class="w_three">
+        <ul class="flex-container">
+            <li>
+                <div></div>
+            </li>
+            <li>
+                <div></div>
+            </li>
+            <li>
+                <div></div>
+            </li>
+
+        </ul>
+    </div>
+{% endblock %}
+{#{% block content %}#}
+{#    <div class="hello-form">#}
+{#<!--使用 request.full_path 获取没有 URL 片段的当前请求 URL-->#}
+{#        {{ render_form(form, action=request.full_path) }}#}
+{#    </div>#}
+{#    <h5>{{ messages|length }} messages#}
+{#        <small class="float-right">#}
+{#            <a href="#bottom" title="Go Bottom">&darr;</a>#}
+{#        </small>#}
+{#    </h5>#}
+{#    <div class="list-group">#}
+{#        {% for message in messages %}#}
+{#            <a class="list-group-item list-group-item-action flex-column">#}
+{#                <div class="d-flex w-100 justify-content-between">#}
+{#                    <h5 class="mb-1 text-success">{{ message.name }}#}
+{#                        <small class="text-muted"> #{{ loop.revindex }}</small>#}
+{#                    </h5>#}
+{#                    <small data-toggle="tooltip" data-placement="top"#}
+{#                           data-timestamp="{{ message.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}"#}
+{#                           data-delay="500">#}
+{#                        <!--渲染相对时间-->#}
+{#                        {{ moment(message.timestamp).fromNow(refresh=True) }}#}
+{#                    </small>#}
+{#                </div>#}
+{#                <p class="mb-1">{{ message.body }}</p>#}
+{#            </a>#}
+{#        {% endfor %}#}
+{#    </div>#}
+{#{% endblock %}#}
