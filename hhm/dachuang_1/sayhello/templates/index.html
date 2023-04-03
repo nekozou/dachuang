@@ -31,12 +31,14 @@
 
 
 
-            {#var time1 = {{ messages.time1 }}#}
-            {#console.log(messages);#}
 
-            console.log('hello');
-            console.log('');
-            console.log('hello1');
+
+            var i = 1;
+            var xDataArr = [];
+            var yDataArr = {{ train_loss }};
+            console.log(yDataArr[0]);
+            for (i = 0; i <= 50; i ++)
+                xDataArr.push(i);
 
             // 指定图表的配置项和数据
             var option = {
@@ -45,13 +47,13 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: [ '{{ messages[0].time1 }}', '{{ messages[0].temp }}', '周三', '周四', '周五', '周六', '周日']
+                    data: xDataArr
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [{
-                    data: [820, 932, 901, 934, 1290, 1330, 1320],
+                    data: yDataArr[0],
                     type: 'line'
                 }]
             };
