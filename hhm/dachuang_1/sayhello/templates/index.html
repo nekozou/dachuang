@@ -1,151 +1,78 @@
 {% extends 'base.html' %}
 <!--Bootstrap-Flask 提供的表单渲染宏通过内置的 bootstrap/form.html 模板导入， -->
-{% from 'bootstrap/form.html' import render_form %}
+{% from 'bootstrap/form.html' import render_form %} {% block content %}
+<div class="grid-container">
+  <!-- 在 HTML 中添加一个容器用于绘制图表 -->
 
-{% block content %}
-    <div class="left">
+  <ul id="main-content">
+    <li><div id="main"></div></li>
+    <li>
+      <div><img src="../static/img/Figure_1.png" alt="" /></div>
+    </li>
+    <li>
+      <div><img src="../static/img/静态子图.jpg" alt="" /></div>
+    </li>
+    <li><div></div></li>
+  </ul>
+  <script>
+    // 初始化 echarts 实例
+    var myChart = echarts.init(document.getElementById("main"));
+    // 定义其他自变量数据
+    const tempData = [28, 26, 25, 27, 29, 28, 27, 26, 28, 30];
+    const wdData = [176, 180, 184, 170, 172, 178, 182, 174, 178, 180];
+    const wsData = [2.2, 3.1, 2.8, 3.5, 3.8, 3.0, 2.9, 2.7, 3.4, 3.2];
+    const rainfallData = [0.2, 0.4, 0.3, 0.1, 0.3, 0.5, 0.4, 0.2, 0.6, 0.3];
 
-{#      {% for data in datalist %}#}
-{#          <li>#}
-{#          温度{{ data.temporary }}#}
-{#          湿度{{ data.humidity }}#}
-{#          负离子数{{ data.ion_count }}#}
-{#          风向{{ data.wind_direction }}#}
-{#          风速{{ data.wind_speed }}#}
-{#          大气压{{ data.atmospheric_pressure }}#}
-{#          降雨量{{ data.rainfall }}#}
-{#          噪音{{ data.noise }}#}
-{#          紫外线强度{{ data.uv_index }}#}
-{#          氧气{{ data.oxygen_level }}#}
-{#          时间{{ data.timestamp }}</li>#}
-{##}
-{#      {% endfor %}#}
+    // 定义o2因变量数据
+    const o2Data = [8.2, 7.6, 8.4, 7.8, 8.5, 8.1, 7.9, 8.3, 7.5, 8.0];
 
+    var option = {
+      title: {
+        text: "Multi-variable Effects on O2",
+      },
+      tooltip: {
+        trigger: "axis",
+        formatter: "{b}: {c}",
+      },
+      legend: {
+        data: ["temp", "wd", "ws", "rainfall"],
+      },
+      xAxis: {
+        type: "category",
+        data: o2Data.map(function (item, index) {
+          return index + 1;
+        }),
+      },
+      yAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          name: "temp",
+          type: "line",
+          data: tempData,
+        },
+        {
+          name: "wd",
+          type: "line",
+          data: wdData,
+        },
+        {
+          name: "ws",
+          type: "line",
+          data: wsData,
+        },
+        {
+          name: "rainfall",
+          type: "line",
+          data: rainfallData,
+        },
+      ],
+    };
 
+    // 使用刚指定的配置项和数据显示图表
+    myChart.setOption(option);
+  </script>
+</div>
 
-        <div id="chart" style="width: 600px; height: 400px;"></div>
-
-        <script>
-            // 基于准备好的容器，初始化 ECharts 实例
-            var myChart = echarts.init(document.getElementById('chart'));
-
-
-
-
-
-            var i = 1;
-            var xDataArr = [];
-            var yDataArr = {{ train_loss }};
-            console.log(yDataArr[0]);
-            for (i = 0; i <= 50; i ++)
-                xDataArr.push(i);
-
-            // 指定图表的配置项和数据
-            var option = {
-                title: {
-                    text: '折线图示例'
-                },
-                xAxis: {
-                    type: 'category',
-                    data: xDataArr
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: [{
-                    data: yDataArr[0],
-                    type: 'line'
-                }]
-            };
-
-            // 使用刚指定的配置项和数据显示图表
-            myChart.setOption(option);
-        </script>
-
-{#        <h5>{{ messages|length }} messages#}
-{#            <small class="float-right">#}
-{#                <a href="#bottom" title="Go Bottom">&darr;</a>#}
-{#            </small>#}
-{#        </h5>#}
-{#        <div class="list-group">#}
-{#            {% for message in messages %}#}
-{#                <a class="list-group-item list-group-item-action flex-column">#}
-{#                    <div class="d-flex w-100 justify-content-between">#}
-{#                        <h5 class="mb-1 text-success">{{ message.rainfall }}#}
-{#                            <small class="text-muted"> #{{ loop.revindex }}</small>#}
-{#                        </h5>#}
-{#                        <h5 class="mb-1 text-success">{{ message.time1 }}#}
-{#                            <small class="text-muted"> #{{ loop.revindex }}</small>#}
-{#                        </h5>#}
-{#                        <small data-toggle="tooltip" data-placement="top"#}
-{#                               data-timestamp="{{ message.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}"#}
-{#                               data-delay="500">#}
-{#                            {{ moment(message.timestamp).fromNow(refresh=True) }}#}
-{#                        </small>#}
-{#                    </div>#}
-{#                    <p class="mb-1">{{ message.body }}</p>#}
-{#                </a>#}
-{#            {% endfor %}#}
-{#        </div>#}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    </div>
-    <div class="right">
-
-    </div>
-    <div class="w_three">
-        <ul class="flex-container">
-            <li>
-                <div></div>
-            </li>
-            <li>
-                <div></div>
-            </li>
-            <li>
-                <div></div>
-            </li>
-
-        </ul>
-    </div>
 {% endblock %}
-{#{% block content %}#}
-{#    <div class="hello-form">#}
-{#<!--使用 request.full_path 获取没有 URL 片段的当前请求 URL-->#}
-{#        {{ render_form(form, action=request.full_path) }}#}
-{#    </div>#}
-{#    <h5>{{ messages|length }} messages#}
-{#        <small class="float-right">#}
-{#            <a href="#bottom" title="Go Bottom">&darr;</a>#}
-{#        </small>#}
-{#    </h5>#}
-{#    <div class="list-group">#}
-{#        {% for message in messages %}#}
-{#            <a class="list-group-item list-group-item-action flex-column">#}
-{#                <div class="d-flex w-100 justify-content-between">#}
-{#                    <h5 class="mb-1 text-success">{{ message.name }}#}
-{#                        <small class="text-muted"> #{{ loop.revindex }}</small>#}
-{#                    </h5>#}
-{#                    <small data-toggle="tooltip" data-placement="top"#}
-{#                           data-timestamp="{{ message.timestamp.strftime('%Y-%m-%dT%H:%M:%SZ') }}"#}
-{#                           data-delay="500">#}
-{#                        <!--渲染相对时间-->#}
-{#                        {{ moment(message.timestamp).fromNow(refresh=True) }}#}
-{#                    </small>#}
-{#                </div>#}
-{#                <p class="mb-1">{{ message.body }}</p>#}
-{#            </a>#}
-{#        {% endfor %}#}
-{#    </div>#}
-{#{% endblock %}#}
