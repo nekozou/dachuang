@@ -111,4 +111,4 @@ count()		# 返回查询结果的数量
 
 从某个范围内随机挑选出某一年的负氧离子数据（展示样例为2022年）进行展示，并且取负氧离子浓度平均值作为某一天的数据，图像效果如下：
 
-![image-20230430172134029](/home/hhm/.config/Typora/typora-user-images/image-20230430172134029.png)
+![image](https://user-images.githubusercontent.com/88172940/235345838-0b481c12-402f-4909-a383-4f68e40ab81a.png)
