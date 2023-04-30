@@ -1,42 +1,34 @@
 # -*- coding: utf-8 -*-
+import io
+
 from flask import flash, redirect, url_for, render_template, session, request
 from sayhello import app, db
 from flask_login import LoginManager, login_required, current_user, login_user, UserMixin, logout_user
 import pandas as pd
 from pandas import read_csv
 
-# from pandas import DataFrame
-# from pandas import concat
-# from datetime import datetime
-# from math import sqrt
-# from numpy import concatenate
-# from matplotlib import pyplot
-# from sklearn.preprocessing import MinMaxScaler
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.metrics import mean_squared_error
-# from keras.models import Sequential
-# from keras.layers import Dense
-# from keras.layers import LSTM
-# from sayhello.forms import HelloForm
-# from sayhello.models import Message
-# from flask import abort
-
+from pandas import DataFrame
+from pandas import concat
+from datetime import datetime
+from math import sqrt
+from numpy import concatenate
+from matplotlib import pyplot, pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from sayhello.forms import HelloForm
+from sayhello.models import Message
+from flask import abort
 
 # print()不省略输出
 pd.set_option('display.max_rows', 500)
 pd.set_option('display.max_columns', 100)
 pd.set_option('display.width', 1000)
 
-# 加载数据
-dataset = read_csv('data.csv')
-# 打印及保存
-# print(dataset.head(5))
-dataset.to_csv('pollution.csv')
 
-# 删除时间那一列
-dataset = read_csv('pollution.csv', header=0, index_col=0)
-dataset.drop('Time', axis=1, inplace=True)  # 删除时间那一列
-values = dataset.values  # 只取值，不取索引
 
 """
 # 画子图
@@ -198,10 +190,121 @@ def logout():
     return '退出登录成功！'
 
 
+# @app.route('/')
+# @login_required
+# def index():
+#     df = pd.read_csv('data.csv')
+#     data = df.to_dict(orient='records')
+#     #return render_template('index.html', train_loss=train_loss, test_loss=test_loss)
+#     return render_template('index.html',data=data)
+
+# 测试
+
 @app.route('/')
-@login_required
 def index():
-    df = pd.read_csv('data.csv')
-    data = df.to_dict(orient='records')
-    #return render_template('index.html', train_loss=train_loss, test_loss=test_loss)
-    return render_template('index.html',data=data)
+    # 连接数据库、查询数据、画图的代码
+    results = Message.query.all()
+    dates = []
+    for c in results:
+        date = datetime.strptime(c.record_time, '%Y-%m-%d %H:%M:%S')
+        dates.append(datetime.strftime(date, '%Y-%m-%d'))
+    nais = [x.nai for x in results]
+
+    # 画2021-06-03变化图像
+    dates_day = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5,
+                 7.0, 7.5, 8.0, 8.5, 9.0, 9.5, 10.0, 10.5, 11.0, 11.5, 12.0, 12.5, 13.0,
+                 13.5, 14.0, 14.5, 15.0, 15.5, 16.0, 16.5, 17.0, 17.5, 18.0, 18.5, 19.0,
+                 19.5, 20.0, 20.5, 21.0, 21.5, 22.0, 22.5, 23.0, 23.5]
+    nais_day = nais[269:317] # 270-317
+    plt.figure(figsize=(15, 7))
+    plt.plot(dates_day, nais_day)
+    plt.title('Daily Cycle of Nai')
+    plt.xlabel('Time')
+    plt.ylabel('Nai')
+    plt.grid(True)
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    with open('ImageDay.png', 'wb') as f:
+        f.write(img.getvalue())
+
+    # 画2021-06月的图片
+    dates_mon = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+    nais_mon = []
+    nais_tmp_mon = nais[191:1610] # 192-1610
+    dates_tmp_mon = dates[191:1610]
+    index_mon = "2021-06"
+    for i in range(1, 31):
+        index = ""
+        if (i < 10):
+            index = index_mon + "-0" + str(i)
+        else:
+            index = index_mon + "-" + str(i)
+        sum = 0
+        len_tmp = 0
+        for j in range(len(dates_tmp_mon)):
+            if (index == dates_tmp_mon[j]):
+                sum += int(nais_tmp_mon[j])
+                len_tmp += 1
+        if len_tmp > 0:
+            nais_mon.append(sum // len_tmp)
+        else:
+            nais_mon.append(0)  # 如果len_tmp为0,那么nais_mon加入0值
+
+    plt.figure(figsize=(15, 7))
+    plt.plot(dates_mon, nais_mon)
+    plt.title('Monthly Cycle of Nai')
+    plt.xlabel('Time')
+    plt.ylabel('Nai')
+    plt.grid(True)
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    with open('ImageMon.png', 'wb') as f:
+        f.write(img.getvalue())
+
+    # 画2022年的图片
+    dates_year = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+    nais_year = []
+    nais_tmp_year = nais[10298:26744] #  10299-26744
+    dates_tmp_year = dates[10298:26744]
+    index_year = "2022-"
+    for i in range(1, 13):
+        index = ""
+        if (i < 10):
+            index = index_year + "0" + str(i)
+        else:
+            index = index_mon + str(i)
+        sum = 0
+        len_tmp = 0
+        for j in range(len(dates_tmp_year)):
+            str_tmp = dates_tmp_year[j][:7]
+            if (index == str_tmp):
+                sum += int(nais_tmp_year[j])
+                len_tmp += 1
+        if len_tmp > 0:
+            nais_year.append(sum // len_tmp)
+        else:
+            nais_year.append(0)  # 如果len_tmp为0,那么nais_mon加入0值
+
+    plt.figure(figsize=(15, 7))
+    plt.plot(dates_year, nais_year)
+    plt.title('Annual Cycle of Nai')
+    plt.xlabel('Time')
+    plt.ylabel('Nai')
+    plt.grid(True)
+    img = io.BytesIO()
+    plt.savefig(img, format='png')
+    with open('ImageYear.png', 'wb') as f:
+        f.write(img.getvalue())
+
+
+    # plt.figure(figsize=(40, 25))
+    # plt.plot(dates, nais)
+    # plt.title('In-game currency spent (daily data)')
+    # plt.grid(True)
+    # img = io.BytesIO()
+    # plt.savefig(img, format='png')
+    # with open('chart.png', 'wb') as f:
+    #     f.write(img.getvalue())
+
+    return 'Image saved!'

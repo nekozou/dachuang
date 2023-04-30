@@ -2,53 +2,41 @@
 #自定义flask命令
 import click
 import csv
-
+import mysql.connector
 from sayhello import app, db
 from sayhello.models import Message
 
-#删除表后重建
 @app.cli.command()
 @click.option('--drop', is_flag=True, help='Create after drop.')
-def initdb(drop): # 若有数据库则删除，然后重新给项目创建一个数据库
+def initdb(drop): # 将本地数据库数据导入项目data.db文件中
+    # 保证数据库表结构和模型类同步更新
     if drop:
         click.confirm('This operation will delete the database, do you want to continue?', abort=True)
-        db.drop_all()
-        click.echo('Drop tables.')
-    db.create_all()
-    click.echo('Initialized database.')
-
-# 给项目数据库data.db导入数据库
-@app.cli.command()
-@click.option('--count', default=20, help='Quantity of messages, default is 20.')
-def ImportData(count):
-    # 若有数据库则删除，然后新建一个项目数据库
     db.drop_all()
+    click.echo('Drop tables.')
     db.create_all()
 
-    click.echo('导入数据中...')
+    # 连接数据库
+    conn = mysql.connector.connect(host='localhost', port=3306, user='root', passwd='', db='DcData')
+    # 获取游标
+    cursor = conn.cursor()
+    # 执行SQL查询
+    cursor.execute('SELECT * FROM miyun_raw_nais')
+    # 获取结果
+    results = cursor.fetchall()
+    # 打印结果，测试
+    # for row in results:
+    #     print(row)
+    for row in results:
+        message = Message(
+            id = str(row[0]),
+            record_time = str(row[1]),
+            nai = str(row[2])
+        )
+        db.session.add(message)
+    db.session.commit()
+    # 关闭连接
+    cursor.close()
+    conn.close()
 
-    with open('data.csv', 'r') as file:
-        reader = csv.reader(file)
-        # 读取头部并去掉空格
-        headers = [header.strip() for header in next(reader)]
-        for row in reader:
-            row_data = {}
-            for i, value in enumerate(row):
-                row_data[headers[i]] = value
-            message = Message(
-                time1 = row_data['Time'],
-                temp = row_data['Temp'],
-                humi = row_data['Humi'],
-                noin = row_data['Noin'],
-                wd = row_data['Wd'],
-                ws = row_data['Ws'],
-                ap = row_data['Ap'],
-                rainfall = row_data['Rainfall'],
-                noise = row_data['Noise'],
-                ui = row_data['Ul'], # 这里字母有些问题
-                o2 = row_data['O2']
-            )
-            db.session.add(message)
-
-        db.session.commit()
-    click.echo('\n导入数据成功')
+    click.echo('Initialized database.') # 提示语句
