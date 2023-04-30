@@ -30,106 +30,6 @@ pd.set_option('display.width', 1000)
 
 
 
-"""
-# 画子图
-groups = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] # 绘制指定列的图
-i = 1
-pyplot.figure() # 绘制每一列
-for group in groups:
-    pyplot.subplot(len(groups), 1, i) # 行数、列数、索引数
-    pyplot.plot(values[:, group]) # 取所有行的group列
-    pyplot.title(dataset.columns[group], y=0.5, loc='right') # 命名
-    i += 1
-pyplot.show()
-print(dataset.head(5))
-"""
-
-# # 将数据转为监督学习所需格式
-# def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
-#     n_vars = 1 if type(data) is list else data.shape[1]
-#     df = DataFrame(data)
-#     cols, names = list(), list()
-#     # 输入步长序列 (t-n, ... t-1)
-#     for i in range(n_in, 0, -1):
-#         cols.append(df.shift(i))
-#         names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
-
-#     # 输出（预测）步长序列 (t, t+1, ... t+n)
-#     for i in range(0, n_out):
-#         cols.append(df.shift(-i))
-#         if i == 0:
-#             names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
-#         else:
-#             names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
-
-
-#     # 合在一次
-#     agg = concat(cols, axis=1)
-#     agg.columns = names
-#     # 删除有空值的行
-#     if dropnan:
-#         agg.dropna(inplace=True)
-#     return agg
-
-# # 确保所有的数都是浮点数
-# values = values.astype('float32')
-# # 归一化所有的特征
-# scaler = MinMaxScaler(feature_range=(0, 1))
-# scaled = scaler.fit_transform(values)
-# # 处理数据符合监督学习格式
-# reframed = series_to_supervised(scaled, 1, 1)
-# # print(reframed.head(5))
-# # 删除我们不想预测的列
-# reframed.drop(reframed.columns[[9,11,12,13,14,15,16,17,18,19]], axis=1, inplace=True)
-# # print(reframed.head())
-
-# # 划分数据集
-# values = reframed.values
-# n_train_hours = 800 # 拿800作为训练数据集，随便定的，大概比例是50%
-# train = values[:n_train_hours, :]
-# test = values[n_train_hours:,   :]
-# # 拆分为输入和输出
-# train_X, train_y = train[:, :-1], train[:, -1]
-# test_X, test_y = test[:, :-1], test[:, -1]
-# # 将输入重塑为3维向量格式将[样本、时间步长、特征]
-# train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
-# test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
-# # print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
-
-# train_loss = [] # 存储损失的数值，传给前端
-# test_loss = []
-
-# # 设计神经网络
-# model = Sequential()
-# model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2]))) # 训练50次
-# model.add(Dense(1))
-# model.compile(loss='mae', optimizer='adam')
-
-# # 使用训练集及测试集进行集合
-# history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
-# pyplot.plot(history.history['loss'], label='train') # 损失值作为y轴
-# train_loss.append(history.history['loss'])
-# pyplot.plot(history.history['val_loss'], label='test')
-# test_loss.append(history.history['loss'])
-# pyplot.legend()
-# pyplot.show()
-
-# # 进行预测
-# print('--------------------------------------------------')
-# yhat = model.predict(test_X)
-# test_X = test_X.reshape((test_X.shape[0], test_X.shape[2]))
-# # 反比例预测 将预测与测试数据集结合起来并反转缩放比例
-# inv_yhat = concatenate((yhat, test_X[:, -9:]), axis=1)
-# inv_yhat = scaler.inverse_transform(inv_yhat)
-# inv_yhat = inv_yhat[:,0]
-# # 实际的反转比例
-# test_y = test_y.reshape((len(test_y), 1))
-# inv_y = concatenate((test_y, test_X[:, -9:]), axis=1)
-# inv_y = scaler.inverse_transform(inv_y)
-# inv_y = inv_y[:,0]
-# # 计算均方根误差
-# rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
-# print('Test RMSE: %.3f' % rmse) # 最终结果
 
 
 # 配置 Flask-Login
@@ -199,7 +99,6 @@ def logout():
 #     return render_template('index.html',data=data)
 
 # 测试
-
 @app.route('/')
 def index():
     # 连接数据库、查询数据、画图的代码
@@ -273,14 +172,19 @@ def index():
         if (i < 10):
             index = index_year + "0" + str(i)
         else:
-            index = index_mon + str(i)
+            index = index_year + str(i)
         sum = 0
         len_tmp = 0
+        print("index:", index)
         for j in range(len(dates_tmp_year)):
             str_tmp = dates_tmp_year[j][:7]
+            if (str_tmp == "2022-11"):
+                print(nais_tmp_year[j])
             if (index == str_tmp):
                 sum += int(nais_tmp_year[j])
                 len_tmp += 1
+        print("sum:", sum)
+        print("len_tmp", len_tmp)
         if len_tmp > 0:
             nais_year.append(sum // len_tmp)
         else:
@@ -288,6 +192,8 @@ def index():
 
     plt.figure(figsize=(15, 7))
     plt.plot(dates_year, nais_year)
+    print(dates_year)
+    print(nais_year)
     plt.title('Annual Cycle of Nai')
     plt.xlabel('Time')
     plt.ylabel('Nai')
@@ -297,14 +203,92 @@ def index():
     with open('ImageYear.png', 'wb') as f:
         f.write(img.getvalue())
 
+    # 模型
+    # 将数据转为监督学习所需格式
+    def series_to_supervised(data, n_in=1, n_out=1, dropnan=True):
+        n_vars = 1 if type(data) is list else data.shape[1]
+        df = DataFrame(data)
+        cols, names = list(), list()
+        # 输入步长序列 (t-n, ... t-1)
+        for i in range(n_in, 0, -1):
+            cols.append(df.shift(i))
+            names += [('var%d(t-%d)' % (j+1, i)) for j in range(n_vars)]
 
-    # plt.figure(figsize=(40, 25))
-    # plt.plot(dates, nais)
-    # plt.title('In-game currency spent (daily data)')
-    # plt.grid(True)
-    # img = io.BytesIO()
-    # plt.savefig(img, format='png')
-    # with open('chart.png', 'wb') as f:
-    #     f.write(img.getvalue())
+        # 输出（预测）步长序列 (t, t+1, ... t+n)
+        for i in range(0, n_out):
+            cols.append(df.shift(-i))
+            if i == 0:
+                names += [('var%d(t)' % (j+1)) for j in range(n_vars)]
+            else:
+                names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]
+
+
+        # 合在一次
+        agg = concat(cols, axis=1)
+        agg.columns = names
+        # 删除有空值的行
+        if dropnan:
+            agg.dropna(inplace=True)
+        return agg
+
+    # 确保所有的数都是浮点数
+    values = values.astype('float32')
+    # 归一化所有的特征
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaled = scaler.fit_transform(values)
+    # 处理数据符合监督学习格式
+    reframed = series_to_supervised(scaled, 1, 1)
+    # print(reframed.head(5))
+    # 删除我们不想预测的列
+    reframed.drop(reframed.columns[[9,11,12,13,14,15,16,17,18,19]], axis=1, inplace=True)
+    # print(reframed.head())
+
+    # 划分数据集
+    values = reframed.values
+    n_train_hours = 800 # 拿800作为训练数据集，随便定的，大概比例是50%
+    train = values[:n_train_hours, :]
+    test = values[n_train_hours:,   :]
+    # 拆分为输入和输出
+    train_X, train_y = train[:, :-1], train[:, -1]
+    test_X, test_y = test[:, :-1], test[:, -1]
+    # 将输入重塑为3维向量格式将[样本、时间步长、特征]
+    train_X = train_X.reshape((train_X.shape[0], 1, train_X.shape[1]))
+    test_X = test_X.reshape((test_X.shape[0], 1, test_X.shape[1]))
+    # print(train_X.shape, train_y.shape, test_X.shape, test_y.shape)
+
+    train_loss = [] # 存储损失的数值，传给前端
+    test_loss = []
+
+    # 设计神经网络
+    model = Sequential()
+    model.add(LSTM(50, input_shape=(train_X.shape[1], train_X.shape[2]))) # 训练50次
+    model.add(Dense(1))
+    model.compile(loss='mae', optimizer='adam')
+
+    # 使用训练集及测试集进行集合
+    history = model.fit(train_X, train_y, epochs=50, batch_size=72, validation_data=(test_X, test_y), verbose=2, shuffle=False)
+    pyplot.plot(history.history['loss'], label='train') # 损失值作为y轴
+    train_loss.append(history.history['loss'])
+    pyplot.plot(history.history['val_loss'], label='test')
+    test_loss.append(history.history['loss'])
+    pyplot.legend()
+    pyplot.show()
+
+    # 进行预测
+    print('--------------------------------------------------')
+    yhat = model.predict(test_X)
+    test_X = test_X.reshape((test_X.shape[0], test_X.shape[2]))
+    # 反比例预测 将预测与测试数据集结合起来并反转缩放比例
+    inv_yhat = concatenate((yhat, test_X[:, -9:]), axis=1)
+    inv_yhat = scaler.inverse_transform(inv_yhat)
+    inv_yhat = inv_yhat[:,0]
+    # 实际的反转比例
+    test_y = test_y.reshape((len(test_y), 1))
+    inv_y = concatenate((test_y, test_X[:, -9:]), axis=1)
+    inv_y = scaler.inverse_transform(inv_y)
+    inv_y = inv_y[:,0]
+    # 计算均方根误差
+    rmse = sqrt(mean_squared_error(inv_y, inv_yhat))
+    print('Test RMSE: %.3f' % rmse) # 最终结果
 
     return 'Image saved!'

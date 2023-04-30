@@ -52,7 +52,9 @@ watchdog==0.10.2
 
 ---
 
-### 数据库
+### 数据
+
+##### 数据库
 
 使用ORM（Object Relational Mapping 对象关系映射）技术，将SQL中的数据表、数据行、字段映射为类、对象和属性。
 
@@ -71,6 +73,12 @@ class Message(db.Model):
 get(ident)	# 传入主键值作为参数，返回指定主键值的记录
 count()		# 返回查询结果的数量
 ```
+
+##### 数据预处理
+
+经过检查，有三个数据明显不合理，将其作删除处理，示例如下：
+
+![image](https://user-images.githubusercontent.com/88172940/235351505-3cf7c4a3-dd8f-45a0-818d-c0967169c0a1.png)
 
 ---
 
@@ -111,4 +119,4 @@ count()		# 返回查询结果的数量
 
 从某个范围内随机挑选出某一年的负氧离子数据（展示样例为2022年）进行展示，并且取负氧离子浓度平均值作为某一天的数据，图像效果如下：
 
-![image](https://user-images.githubusercontent.com/88172940/235345838-0b481c12-402f-4909-a383-4f68e40ab81a.png)
+![image](https://user-images.githubusercontent.com/88172940/235351723-6ccab384-d66e-4b93-851b-90888ce019f4.png)
