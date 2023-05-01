@@ -120,3 +120,73 @@ count()		# 返回查询结果的数量
 从某个范围内随机挑选出某一年的负氧离子数据（展示样例为2022年）进行展示，并且取负氧离子浓度平均值作为某一天的数据，图像效果如下：
 
 ![image](https://user-images.githubusercontent.com/88172940/235351723-6ccab384-d66e-4b93-851b-90888ce019f4.png)
+
+---
+
+### 算法模型
+
+##### 数据处理
+
+以每天负氧离子平均值作为序列的一个点，注意，若一天中观测点不足48个，则视为无效数据舍去。
+
+##### 结果部分
+
+**预测值与真实值对比图（已归一化处理）：**
+
+![image](https://user-images.githubusercontent.com/88172940/235405654-917a1e98-4f0f-406d-9f30-9a21129caabe.png)
+
+**损失值图：**
+
+![image](https://user-images.githubusercontent.com/88172940/235405618-309a2159-6cf2-4b92-82a0-cf537337934f.png)
+
+##### 模型代码
+
+```py
+# 数据处理
+values = []; sum_tmp = 0; len_tmp = 0
+for i in range(len(dates) - 1): # 剔除有缺失值的某天数据
+    if (dates[i] == dates[i + 1]):
+        sum_tmp += int(nais[i])
+        len_tmp += 1
+    else:
+        if (len_tmp == 47):
+            values.append((int(sum_tmp) + int(nais[i])) // 48)
+        sum_tmp = 0; len_tmp = 0
+
+# 将数据归一化
+data = values
+data = np.array(data)
+data = data.reshape(-1,1)
+data = data / np.max(data)
+# 构建模型
+model = Sequential()
+model.add(LSTM(100, input_shape=(1,1), return_sequences=True))
+model.add(LSTM(100))
+model.add(Dense(1))
+model.compile(loss='mean_squared_error', optimizer='adam')
+# 训练模型
+model.fit(data, data, epochs=200, verbose=0)
+# 预测并计算损失
+predict = model.predict(data[-10:])
+loss = np.mean((predict - data[-10:]) ** 2)
+print("loss:", loss)
+
+# 训练模型并保存图片
+history = model.fit(data, data, epochs=500, verbose=0)
+# 预测数据图
+predict = model.predict(data)
+plt.plot(data, color='blue', label='Actual')
+plt.plot(predict, color='red', label='Predicted')
+plt.title('Prediction vs Actual')
+plt.legend()
+plt.savefig('sayhello/static/预测值-真实值对比.png')
+# 损失值图
+loss = history.history['loss']
+plt.plot(loss)
+plt.title('Loss curve')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.savefig('sayhello/static/损失值.png')
+plt.show()
+```
+
