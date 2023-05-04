@@ -29,7 +29,9 @@
 
 **注：**在Pycharm等IDE中，使用`pipenv --venv`命令查看项目对应的虚拟环境路径，再将解释器路径设置为对应的虚拟环境路径，通常macOS中路径类似`~/.local/share/virtualenvs/helloflaskkSN7ec1K/bin/python`；Windows中路径类似：`C：\Users\Administrator\.virtualenvs\helloflask-5Pa0ZfZw\Scripts\python.exe`。
 
-7、`cd sayhello/`，然后执行`flask run`即可。（若无数据，可先执行`flask importdata`命令，再执行`flask run`）。
+7、`cd sayhello/`，然后执行`flask run`即可。（若无数据，可先执行`flask initdb`命令，再执行`flask run`）。
+
+8、环境问题待补充...
 
 配置文件`Pipfile`或`requirements.txt`内容如下：
 
