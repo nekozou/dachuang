@@ -156,6 +156,12 @@ count()		# 返回查询结果的数量
 
 ![image](https://user-images.githubusercontent.com/88172940/235405618-309a2159-6cf2-4b92-82a0-cf537337934f.png)
 
+**主页整体效果：**
+
+![整体效果1](https://user-images.githubusercontent.com/88172940/236615760-f1667a46-6a68-496a-bbcb-d168e9fda564.png)
+
+![整体效果2](https://user-images.githubusercontent.com/88172940/236615765-ed5c7b83-8f69-469b-b08f-059eff69161d.png)
+
 ##### 模型代码
 
 ```py
