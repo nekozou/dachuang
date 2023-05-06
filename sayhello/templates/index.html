@@ -1,160 +1,41 @@
 {% extends 'base.html' %}
 <!--Bootstrap-Flask 提供的表单渲染宏通过内置的 bootstrap/form.html 模板导入， -->
 {% from 'bootstrap/form.html' import render_form %} {% block content %}
-<div class="grid-container">
-  <!-- 在 HTML 中添加一个容器用于绘制图表 -->
-  <button id="render-btn">渲染</button>
-  <ul id="main-content">
-    <li><div id="main"></div></li>
-    <li>
-      <div><img src="../static/img/Figure_1.png" alt="" /></div>
-    </li>
-    <li>
-      <div><img src="../static/img/静态子图.jpg" alt="" /></div>
-    </li>
-    <li>
-      <div id="predict">
-        <h1>预测</h1>
-        <label for="ap">AP:</label>
-        <input type="text" id="ap" />
-        <br />
-        <label for="humi">Humi:</label>
-        <input type="text" id="humi" />
-        <br />
-        <label for="noin">Noin:</label>
-        <input type="text" id="noin" />
-        <br />
-        <label for="noise">Noise:</label>
-        <input type="text" id="noise" />
-        <br />
-        <button id="submit">Submit</button>
-      </div>
-    </li>
-  </ul>
-  <script>
-            // 初始化 echarts 实例
-            var myChart = echarts.init(document.getElementById('main'));
-            // 处理数据
-            var data = {{ data | tojson }};
+    <div style="width: 600px; margin: auto; display: flex; flex-direction: column; align-items: center;">
+        <div id="gallery">
+            <img src="../static/ImageDay.png" id="img1" style="display: block">
+            <img src="../static/ImageMon.png" id="img2" style="display: none">
+            <img src="../static/ImageYear.png" id="img3" style="display: none">
+            <select id="imgSelect">
+                <option value="img1">日度数据展示</option>
+                <option value="img2">月度数据展示</option>
+                <option value="img3">年度数据展示</option>
+            </select>
+        </div>
+        <div style="height: 10px;"></div>
+        <div style="display: flex;">
+            <img id="图片2" style="margin:10px;" src="../static/损失值.png" style="flex: 1;">
+            <img id="图片3" style="margin:10px;" src="../static/预测值-真实值对比.png" style="flex: 1;">
+        </div>
+    </div>
 
-            function processData(data) {
-              //data = [{ 'Ap': 871.7, 'Humi': 90, 'Noin': 944, 'Noise': 80.6, 'O2': 20.9 ,Rainfall: 0,Temp,time,ul,wd,ws},, {}, ...] # 假设这是你的数据列表
+    <script>
+        // 图片默认隐藏,除了图片1
+        let imgs = document.querySelectorAll('#gallery img')
+        let visibleImg = 'img1'
 
-              values = []
-
-              var values = [];
-              for (var i = 0; i < 24; i++) {
-                  values.push([]);
-              } // 创建一个空的二维数组，用于存储每个小时的数据
-
-              for (var i = 0; i < 24; i++) {
-                var hour_data = data[i];
-                if (!hour_data) {
-                    continue;
-                }
-
-                var day = Math.floor(i / 24); // 计算当前小时所属的天数
-                var hour = i % 24; // 计算当前小时是一天中的第几个小时
-
-                var data_dict = hour_data;
-                var data_values = [
-                    data_dict['Ap'], data_dict['Humi'], data_dict['Noin'], data_dict['Noise'], data_dict['O2']
-                ];
-
-                values[hour].push(data_dict['Ap']);
-                values[hour].push(data_dict['Humi']);
-                values[hour].push(data_dict['Noin']);
-                values[hour].push(data_dict['Noise']);
-                values[hour].push(data_dict['O2']);
-
+        for (let i = 0; i < imgs.length; i++) {
+            if (imgs[i].id != visibleImg) {
+                imgs[i].style.display = 'none'
             }
-
-              return values;
-            }
-
-            var values = processData(data);
-            console.log(values);
-        // 绘制柱状图的函数
-        function renderChart(values, hour) {
-          console.log('renderChart function called')
-          // 定义横坐标和纵坐标的数据
-          var xAxisData = ['AP', 'Humi', 'Noin', 'Noise', 'O2'];
-          var yAxisData = [
-            values[hour][0],
-            values[hour][1],
-            values[hour][2],
-            values[hour][3],
-            values[hour][4]
-          ];
-
-          // 配置echarts的option参数
-          var option = {
-
-            xAxis: {
-              type: 'category',
-              data: xAxisData
-            },
-            yAxis: {
-              type: 'value'
-            },
-            legend: {
-              data: ['AP','Humi','Noin','Noise','O2'],
-              // 设置图例的位置
-              left: 'center',
-              top: 'bottom',
-              // 设置图例的样式
-              textStyle: {
-                  fontSize: 14,
-                  color: '#333'
-              }
-          },
-            series: [{
-              data: yAxisData,
-              type: 'bar',
-              label: {
-                show: true,
-                position: 'top',
-                formatter: '{c}'    // 这里的{c}会自动替换为数据项(柱子)的值
-            }
-            }]
-          };
-
-          // 使用setOption方法动态渲染柱状图
-          myChart.setOption(option);
         }
 
-        // 绑定按钮的点击事件，获取用户选择的hour值，调用绘制柱状图的函数
-        document.getElementById('render-btn').addEventListener('click', function() {
-          var hour = parseInt(prompt("请输入小时数（0~23）："));
-          if (hour >= 0 && hour <= 23) {
-            renderChart(values, hour);
-            console.log(values[2][3])
-          } else {
-            alert("请输入有效的小时数（0~23）！");
-          }
-        });
-
-        //预测
-        var apInput = document.getElementById("ap");
-        var humiInput = document.getElementById("humi");
-        var noinInput = document.getElementById("noin");
-        var noiseInput = document.getElementById("noise");
-
-        var submitButton = document.getElementById("submit");
-        submitButton.addEventListener("click", function() {
-          // 读取每个输入框的值
-          var apValue = apInput.value;
-          var humiValue = humiInput.value;
-          var noinValue = noinInput.value;
-          var noiseValue = noiseInput.value;
-
-          // 在控制台输出这些值
-          console.log("AP value: ", apValue);
-          console.log("Humi value: ", humiValue);
-          console.log("Noin value: ", noinValue);
-          console.log("Noise value: ", noiseValue);
-    });
-  </script>
-</div>
-
+        let select = document.querySelector('#gallery #imgSelect')
+        select.addEventListener('change', function () {
+            let prevVisibleImg = visibleImg
+            visibleImg = this.value
+            document.querySelector('#gallery #' + prevVisibleImg).style.display = 'none'
+            document.querySelector('#gallery #' + visibleImg).style.display = 'block'
+        })
+    </script>
 {% endblock %}
