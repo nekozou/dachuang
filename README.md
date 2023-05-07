@@ -31,9 +31,9 @@
 
 7、`cd sayhello/`，然后执行`flask run`即可。（若无数据，可先执行`flask initdb`命令，再执行`flask run`）。
 
-8、环境问题待补充...
+8、出现报错：`ModuleNotFoundError: No module named 'mysql'`，可使用命令`pip install mysql-connector-python`为虚拟环境安装`mysql`模块。
 
-配置文件`Pipfile`或`requirements.txt`内容如下：
+9、**配置文件**`Pipfile`或`requirements.txt`内容如下：
 
 ```php
 bootstrap-flask==1.2.0
